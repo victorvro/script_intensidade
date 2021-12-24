@@ -1,38 +1,22 @@
 import pandas as pd
 import re
 
-def verificarmg(descricoes):
-    for descricao in descricoes:
-        mg = re.search("\d*.\d*MG", descricao)
-        if mg is not None:
-            return mg.group(0)
-    return False
-            
-def verificarporc(descricoes):
-    for descricao in descricoes:
-        porc = re.search("\d*.\d*%", descricao)
-        if porc is not None: 
-            return porc.group(0)
-    return False
-
-
 produtos = pd.read_csv("produtos.csv")
 intensidade = []
 
 for i in produtos.itertuples():
-    descricoes = i.descreduzida.split()
-    porc = verificarporc(descricoes)
-    mg = verificarmg(descricoes)
-    if porc and mg :
-        aux = porc + " " + mg
+    porc = re.search("(\d+\S*\d*%)", i.descreduzida)
+    mg = re.search("(\d+\S*\d*MG)", i.descreduzida)
+    if porc and mg is not None:
+        aux = porc.group(0) + " // " + mg.group(0)
         intensidade.append(aux)
     elif mg:
-        intensidade.append(mg)
+        intensidade.append(mg.group(0))
     elif porc:
-        intensidade.append(porc)
+        intensidade.append(porc.group(0))
     else:
         intensidade.append('')
         
 
 produtos.insert( 2, "intensidade", intensidade)
-produtos.to_csv('teste.csv',index=False)
+produtos.to_csv("teste.csv",index=False)
